@@ -59,7 +59,7 @@ llm-tools-suite/
 ├── app.py                          # Main Streamlit app interface
 ├── README.md                       # Project documentation
 ├── requirements.txt                # Required Python packages
-├── images/                         # Screenshots for documentation
+├── images/                         # Screenshots
 └── api_key.py                      # (Not pushed) API key file for Gemini
 
 ````
