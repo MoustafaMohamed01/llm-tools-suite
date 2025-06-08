@@ -2,7 +2,7 @@
 
 An integrated collection of AI-powered tools designed to enhance productivity and streamline various tasks using advanced Large Language Models. This suite offers a unified interface to access powerful features for content generation, data analysis, query creation, document summarization, and more.
 
------
+---
 
 ## Features
 
@@ -26,21 +26,27 @@ The LLM Tools Suite brings together several specialized modules in one convenien
   - **🌐 Website Summarizer**
     Provide a URL and get a concise summary of the web page content, with a convenient download option for the summary.
 
------
+---
 
 ## Screenshots
 
 ### 🧠 AI Assistant
+![Overview](images/overview.png)
 
- \#\#\# 📝 Blog AI Assistant
+### 📝 Blog AI Assistant
+![Blog Assistant](images/blog_assistant.png)
 
 ### 📊 AI CSV Analyzer
+![CSV Analyzer](images/data_analyzer.png)
 
 ### 💻 SQL Query Generator
+![SQL Generator](images/sql_generator.png)
 
 ### 📄 Document Summarizer
+![Document Summarizer](images/document_summarizer.png)
 
 ### 🌐 Website Summarizer
+![Website Summarizer](images/website_summarizer.png)
 
  ---
 
@@ -65,7 +71,7 @@ llm-tools-suite/
 
 ```
 
------
+---
 
 ## Installation
 
