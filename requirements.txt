@@ -3,14 +3,8 @@ google-generativeai
 pandas
 requests
 beautifulsoup4
-# Core Langchain package
 langchain>=0.1.0
-# Langchain integration for Google Generative AI
 langchain-google-genai
-# PDF processing
 pypdf
-# Word document processing
 python-docx
-# Vector store for document summarizer
 faiss-cpu
-# Any other specific libraries you might have added later
