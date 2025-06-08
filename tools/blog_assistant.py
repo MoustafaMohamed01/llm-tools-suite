@@ -1,9 +1,19 @@
 import streamlit as st
+import os
 import google.generativeai as genai
-from api_key import GEMINI_API_KEY
 
 def blog_assistant_app():
-    genai.configure(api_key=GEMINI_API_KEY)
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+    if not gemini_api_key:
+        st.error(
+            "**ERROR:** Gemini API key not found for Blog Assistant."
+            " Please set it as an environment variable named `GEMINI_API_KEY` "
+            "(e.g., in Streamlit Cloud secrets, Heroku config vars, or your local shell)."
+        )
+        st.stop()
+
+    genai.configure(api_key=gemini_api_key)
 
     generation_config = {
         'temperature': 0.9,
@@ -18,11 +28,17 @@ def blog_assistant_app():
         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
     ]
 
-    model = genai.GenerativeModel(model_name='gemini-2.0-flash',
-                                  generation_config=generation_config,
-                                  safety_settings=safety_settings)
+    try:
+        model = genai.GenerativeModel(model_name='gemini-2.0-flash',
+                                      generation_config=generation_config,
+                                      safety_settings=safety_settings)
+    except Exception as e:
+        st.error(f"Failed to initialize Gemini model for Blog Assistant: {e}. Please check your API key and try again.")
+        st.stop()
+
 
     st.subheader('Now you can craft perfect blogs with the help of AI')
+    st.markdown("---")
 
     with st.container(border=True):
         st.subheader('Blog Configuration')
@@ -59,9 +75,8 @@ def blog_assistant_app():
                     st.download_button(
                         label="Download as Markdown",
                         data=generated_text,
-                        file_name=f"{blog_title.replace(' ', '_')}.md",
+                        file_name=f"{blog_title.replace(' ', '_').strip() or 'generated_blog'}.md", # Added .strip() and default name
                         mime="text/markdown",
                     )
             except Exception as e:
                 st.error(f"An error occurred during blog post generation: {e}")
-                

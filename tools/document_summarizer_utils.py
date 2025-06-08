@@ -6,9 +6,7 @@ from pypdf import PdfReader, errors as pypdf_errors
 from docx import Document
 from langchain_community.vectorstores import FAISS
 import os
-from api_key import GEMINI_API_KEY
-
-os.environ['GOOGLE_API_KEY'] = GEMINI_API_KEY
+# --- REMOVE THIS LINE: from api_key import GEMINI_API_KEY ---
 
 def process_text(text):
     """
@@ -28,6 +26,7 @@ def process_text(text):
     )
     chunks = text_splitter.split_text(text)
 
+    # Note: GoogleGenerativeAIEmbeddings will pick up GOOGLE_API_KEY from os.environ
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
     KnowledgeBase = FAISS.from_texts(chunks, embeddings)
@@ -85,6 +84,17 @@ def summerizer(doc_file):
     Returns:
         str: The summarized text of the document, or an error message.
     """
+    # --- SECURE API KEY LOADING ---
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    if not gemini_api_key:
+        return (
+            "ERROR: Gemini API key not found for Document Summarizer."
+            " Please set it as an environment variable named `GEMINI_API_KEY` "
+            "(e.g., in Streamlit Cloud secrets, Heroku config vars, or your local shell)."
+        )
+    os.environ['GOOGLE_API_KEY'] = gemini_api_key
+    # --- END SECURE API KEY LOADING ---
+
     if doc_file is None:
         return "No document file uploaded."
 
@@ -104,20 +114,24 @@ def summerizer(doc_file):
     if not text.strip():
         return "Could not extract any meaningful text from the provided document. It might be an image-based file, empty, or encrypted."
 
-    KnowledgeBase = process_text(text)
+    try:
+        KnowledgeBase = process_text(text)
+    except Exception as e:
+        return f"ERROR: Failed to create knowledge base from document. Ensure your `GOOGLE_API_KEY` is correct. Details: {e}"
+
     query = 'summarize the content of the uploaded document in approximately 3-5 sentences'
 
-    if query:
-        docs = KnowledgeBase.similarity_search(query)
-
+    # Ensure LLM can be initialized with the API key set in os.environ
+    try:
         llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.1)
+    except Exception as e:
+        return f"ERROR: Failed to initialize Gemini LLM. Ensure your `GOOGLE_API_KEY` is correct. Details: {e}"
 
-        chain = load_qa_chain(llm, chain_type='stuff')
+    chain = load_qa_chain(llm, chain_type='stuff')
 
-        try:
-            response = chain.run(input_documents=docs, question=query)
-            return response
-        except Exception as e:
-            return f"ERROR: An error occurred during summarization with the LLM: {e}"
-    else:
-        return "Summarization query is empty."
+    try:
+        docs = KnowledgeBase.similarity_search(query)
+        response = chain.run(input_documents=docs, question=query)
+        return response
+    except Exception as e:
+        return f"ERROR: An error occurred during summarization with the LLM: {e}"

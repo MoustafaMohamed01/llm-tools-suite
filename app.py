@@ -1,14 +1,26 @@
 import streamlit as st
-import os
+import os # Make sure os is imported
 import google.generativeai as genai
 from tools import blog_assistant
 from tools import data_analyzer
 from tools import sql_query_generator
 from tools import document_summarizer
 from tools import website_summarizer 
-from api_key import GEMINI_API_KEY
+# --- REMOVE THIS LINE: from api_key import GEMINI_API_KEY ---
 
-genai.configure(api_key=GEMINI_API_KEY)
+# --- ADD THIS SECTION FOR SECURE API KEY LOADING ---
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+if not gemini_api_key:
+    st.error(
+        "**ERROR:** Gemini API key not found."
+        " Please set it as an environment variable named `GEMINI_API_KEY` "
+        "(e.g., in Streamlit Cloud secrets, Heroku config vars, or your local shell)."
+    )
+    st.stop() # Stop the app if the API key is not set
+# --- END SECURE API KEY LOADING SECTION ---
+
+genai.configure(api_key=gemini_api_key) # Use the key from the environment variable
 
 model = genai.GenerativeModel('gemini-2.0-flash')
 
@@ -161,4 +173,3 @@ else:
     st.markdown("---")
 
     selected_tool_function()
-    

@@ -1,27 +1,33 @@
 import streamlit as st
-import os
+import os # Import the os module
 import requests
 from bs4 import BeautifulSoup
 import google.generativeai as genai
-from api_key import GEMINI_API_KEY
+# --- REMOVE THIS LINE: from api_key import GEMINI_API_KEY ---
 
 def configure_gemini():
-    api_key = GEMINI_API_KEY
+    # --- Get API key from environment variables ---
+    api_key = os.getenv("GEMINI_API_KEY")
 
     if not api_key:
-        st.error("Gemini API key is missing. Please ensure 'GEMINI_API_KEY' is set in 'api_key.py'.")
+        st.error(
+            "**ERROR:** Gemini API key not found for Website Summarizer."
+            " Please set it as an environment variable named `GEMINI_API_KEY` "
+            "(e.g., in Streamlit Cloud secrets, Heroku config vars, or your local shell)."
+        )
         return None
+    # Basic validation, Gemini API keys usually start with 'AIzaSy'
     if not api_key.startswith("AIzaSy"):
-        st.warning("Invalid API key format. Gemini API keys usually start with 'AIzaSy'. Please check 'api_key.py'.")
-    if api_key.strip() != api_key:
-        st.warning("Extra spaces detected around your API key in 'api_key.py'. Please remove them.")
+        st.warning("Invalid API key format. Gemini API keys usually start with 'AIzaSy'. Please check your environment variable setting.")
+    # No need to check for strip() if it's from env var unless manually set with spaces
     
     genai.configure(api_key=api_key)
     try:
+        # Test if the API key is valid by trying to list models
         list(genai.list_models())
         return genai.GenerativeModel('gemini-2.0-flash')
     except Exception as e:
-        st.error(f"Failed to connect to Gemini API in Website Summarizer. Please check your API key in 'api_key.py' and internet connection. Error: {e}")
+        st.error(f"Failed to connect to Gemini API in Website Summarizer. Please check your API key environment variable and internet connection. Error: {e}")
         return None
 
 model = configure_gemini()
@@ -36,21 +42,23 @@ class Website:
     def _scrape_website(self):
         try:
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-            response = requests.get(self.url, headers=headers, timeout=10)
-            response.raise_for_status() 
+            response = requests.get(self.url, headers=headers, timeout=10) # Added timeout and User-Agent
+            response.raise_for_status() # Raise an exception for HTTP errors
             soup = BeautifulSoup(response.content, "html.parser")
             self.title = soup.title.string if soup.title else self.title
             
+            # Remove irrelevant tags more robustly
             for irrelevant in soup.find_all(["script", "style", "img", "input", "nav", "footer", "header", "aside"]):
                 irrelevant.decompose()
             
-            content_div = soup.find('div', class_=['content', 'main-content', 'article-body'])
+            # Get text from body or common content containers
+            content_div = soup.find('div', class_=['content', 'main-content', 'article-body']) # Common content classes
             if content_div:
                 self.text = content_div.get_text(separator="\n", strip=True)
             elif soup.body:
                 self.text = soup.body.get_text(separator="\n", strip=True)
             else:
-                self.text = ""
+                self.text = "" # Fallback if no body or specific content div
 
         except requests.exceptions.MissingSchema:
             st.error(f"Invalid URL format. Please ensure it starts with 'http://' or 'https://'.")
@@ -78,9 +86,10 @@ def generate_user_prompt(website_title, website_text):
     return user_prompt
 
 def summarize_website_content(url):
-    if not model:
-        st.warning("Gemini API is not configured. Cannot summarize.")
-        return "Gemini API is not configured. Please ensure your API key is set correctly in 'api_key.py'."
+    # Ensure model is initialized before proceeding
+    if model is None: # Changed from 'not model' to 'model is None' for clarity after configure_gemini could return None
+        st.warning("Gemini API model is not configured. Cannot summarize.")
+        return "Gemini API model is not configured. Please ensure your API key environment variable is set correctly."
     
     website = Website(url)
     
@@ -96,10 +105,12 @@ def summarize_website_content(url):
         st.error(f"An error occurred while generating the summary: {e}")
         return "Failed to generate summary. Please try again."
 
+# Streamlit app function for this tool
 def website_summarizer_app():
     st.subheader("Enter Website URL")
     url = st.text_input("URL:", placeholder="e.g., https://www.example.com")
 
+    # Use a session state variable to store the summary so it persists for the download button
     if 'website_summary_output' not in st.session_state:
         st.session_state.website_summary_output = ""
 
@@ -107,12 +118,19 @@ def website_summarizer_app():
         if url:
             with st.spinner("Summarizing website..."):
                 summary = summarize_website_content(url)
-                st.session_state.website_summary_output = summary
-                st.markdown("### Summary")
-                st.markdown(summary)
+                # Only update and display if summary generation was successful
+                if summary and "Failed to generate summary" not in summary and "Gemini API model is not configured" not in summary:
+                    st.session_state.website_summary_output = summary # Store in session state
+                    st.markdown("### Summary")
+                    st.markdown(summary)
+                else:
+                    # If an error message was returned, display it and clear session state
+                    st.session_state.website_summary_output = ""
+                    # The error is already shown by summarize_website_content, no need to show again
         else:
             st.warning("Please enter a URL to summarize.")
 
+    # Show download button only if a summary has been generated
     if st.session_state.website_summary_output:
         st.download_button(
             label="Download Summary as Markdown",
