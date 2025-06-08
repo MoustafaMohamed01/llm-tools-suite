@@ -5,6 +5,7 @@ requests
 beautifulsoup4
 langchain>=0.1.0
 langchain-google-genai
+langchain-community # <--- ADD THIS LINE
 pypdf
 python-docx
 faiss-cpu
