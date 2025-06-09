@@ -1,5 +1,18 @@
 # LLM Tools Suite
 
+## 📛 Badges
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-4CAF50?logo=streamlit\&logoColor=white)](https://llm-tools-suite.streamlit.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Built with Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-fc4c02?logo=streamlit\&logoColor=white)](https://streamlit.io/)
+[![LLM: Google Gemini](https://img.shields.io/badge/LLM-Google%20Gemini-4285F4?logo=google\&logoColor=white)](https://ai.google.dev/)
+[![LangChain](https://img.shields.io/badge/Framework-LangChain-yellowgreen?logo=python\&logoColor=white)](https://www.langchain.com/)
+[![FAISS](https://img.shields.io/badge/Vector%20Search-FAISS-9c27b0)](https://github.com/facebookresearch/faiss)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python\&logoColor=white)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Deployed%20On-Streamlit%20Cloud-0e1117?logo=streamlit)](https://streamlit.io/cloud)
+
+---
+
 An integrated collection of AI-powered tools designed to enhance productivity and streamline various tasks using advanced Large Language Models. This suite offers a unified interface to access powerful features for content generation, data analysis, query creation, document summarization, and more.
 
 **Live Demo Link:** [https://llm-tools-suite.streamlit.app/](https://llm-tools-suite.streamlit.app/)
