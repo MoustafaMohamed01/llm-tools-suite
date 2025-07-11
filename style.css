@@ -1,0 +1,40 @@
+/body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #f9f9fb;
+}
+
+h1, h2, h3 {
+    color: #2c3e50;
+}
+
+.stButton button {
+    background-color: #4A90E2 !important;
+    color: white !important;
+    font-weight: bold;
+    border-radius: 0.5rem;
+}
+
+.stDownloadButton button {
+    background-color: #27ae60 !important;
+    color: white !important;
+    border-radius: 0.4rem;
+}
+
+.stRadio > label {
+    font-weight: 600;
+    color: #34495e;
+}
+
+.stMarkdown, .stTextArea, .stTextInput {
+    font-size: 15px;
+}
+
+code {
+    background-color: #eef;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.sidebar .css-1d391kg {
+    padding-top: 1rem;
+}
