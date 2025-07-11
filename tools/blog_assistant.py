@@ -4,15 +4,13 @@ import google.generativeai as genai
 
 def blog_assistant_app():
     gemini_api_key = os.getenv("GEMINI_API_KEY")
-
     if not gemini_api_key:
         st.error(
-            "**ERROR:** Gemini API key not found for Blog Assistant."
-            " Please set it as an environment variable named `GEMINI_API_KEY` "
+            "**ERROR:** Gemini API key not found for Blog Assistant. "
+            "Please set it as an environment variable named `GEMINI_API_KEY` "
             "(e.g., in Streamlit Cloud secrets, Heroku config vars, or your local shell)."
         )
         st.stop()
-
     genai.configure(api_key=gemini_api_key)
 
     generation_config = {
@@ -44,24 +42,25 @@ def blog_assistant_app():
         st.subheader('Blog Configuration')
         st.write('Enter details of the blog you want to generate')
 
-        blog_title = st.text_input('Blog Title', key="blog_title_input")
-        keywords = st.text_input('Keywords (comma-separated)', key="keywords_input")
-        num_words = st.slider('Number of words', min_value=200, max_value=2500, step=250, key="num_words_slider")
+        blog_title = st.text_input('Blog Title', placeholder="e.g., The Future of AI in Healthcare", key="blog_title_input")
+        keywords = st.text_input('Keywords (comma-separated)', placeholder="e.g., AI, healthcare, innovation, technology", key="keywords_input")
+        num_words = st.slider('Number of words', min_value=200, max_value=2500, step=250, value=750, key="num_words_slider")
 
         prompt_parts = [f"""
-        Generate a well-structured and engaging blog post with the title: "{blog_title}".
-        Incorporate the following keywords naturally throughout the content: "{keywords}".
-        The blog post should aim for a professional yet accessible tone, suitable for a broad audience interested in this topic.
-        Organize the blog post with clear headings and subheadings where appropriate to enhance readability.
-        The approximate word count should be {num_words} words.
-        Please ensure the introduction is captivating, the body paragraphs are informative and well-supported, and the conclusion provides a concise summary or call to action (if relevant to the topic).
-        """]
+        Generate a comprehensive, well-structured, and engaging blog post.
+        **Title:** "{blog_title}"
+        **Keywords:** "{keywords}" (Integrate these naturally throughout the content)
+        **Tone:** Professional yet accessible, suitable for a broad audience.
+        **Structure:** Include a captivating introduction, informative body paragraphs with clear headings/subheadings, and a concise conclusion (with a call to action if appropriate).
+        **Word Count:** Approximately {num_words} words.
+        """
+        ]
 
         submit_button = st.button('Generate Blog', type="primary")
 
     if submit_button:
         if not blog_title or not keywords:
-            st.warning("Please provide a Blog Title and Keywords to generate the blog.")
+            st.warning("Please provide a **Blog Title** and **Keywords** to generate the blog.")
             return
 
         with st.spinner('Generating blog post...'):
@@ -75,8 +74,8 @@ def blog_assistant_app():
                     st.download_button(
                         label="Download as Markdown",
                         data=generated_text,
-                        file_name=f"{blog_title.replace(' ', '_').strip() or 'generated_blog'}.md", # Added .strip() and default name
+                        file_name=f"{blog_title.replace(' ', '_').strip() or 'generated_blog'}.md",
                         mime="text/markdown",
                     )
             except Exception as e:
-                st.error(f"An error occurred during blog post generation: {e}")
+                st.error(f"An error occurred during blog post generation: {e}. Please try again.")
