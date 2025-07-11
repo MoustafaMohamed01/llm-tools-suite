@@ -13,57 +13,74 @@
 
 ---
 
-An integrated collection of AI-powered tools designed to enhance productivity and streamline various tasks using advanced Large Language Models. This suite offers a unified interface to access powerful features for content generation, data analysis, query creation, document summarization, and more.
+An integrated suite of AI-powered tools designed to enhance productivity by leveraging advanced Large Language Models. The platform provides a unified interface for content generation, data analysis, SQL query creation, document and website summarization, code explanation, and more.
 
-**Live Demo Link:** [https://llm-tools-suite.streamlit.app/](https://llm-tools-suite.streamlit.app/)
+**Live Demo:** [https://llm-tools-suite.streamlit.app/](https://llm-tools-suite.streamlit.app/)
 
------
+---
 
 ## Features
 
-The LLM Tools Suite brings together several specialized modules in one convenient Streamlit application:
+The LLM Tools Suite includes the following specialized modules within a single Streamlit application:
 
-  * **🧠 AI Assistant**
-    Engage in a professional conversation with an AI assistant for quick, accurate information. This is now the default landing page.
+* **AI Assistant**
+  A professional conversational AI assistant offering quick, accurate responses. *(Default landing page)*
 
-  * **📝 Blog AI Assistant**
-    Generate high-quality blog content using AI based on a title, keywords, and desired word count.
+* **Blog AI Assistant**
+  Generate high-quality, engaging blog posts using AI based on titles, keywords, and desired lengths.
 
-  * **📊 AI CSV Analyzer**
-    Upload your CSV files and analyze them intelligently using LLM-powered queries.
+* **AI CSV Analyzer**
+  Upload CSV files and explore your data intelligently with LLM-powered natural language queries.
 
-  * **💻 SQL Query Generator**
-    Transform plain English into SQL queries with the help of AI.
+* **SQL Query Generator**
+  Convert natural language descriptions into syntactically correct SQL queries, supporting multiple dialects.
 
-  * **📄 Document Summarizer**
-    Upload a PDF or Word document and get a concise summary in seconds, with the option to download the output.
+* **Document Summarizer**
+  Upload PDF or Word documents and receive concise, accurate summaries with download options.
 
-  * **🌐 Website Summarizer**
-    Provide a URL and get a concise summary of the web page content, with a convenient download option for the summary.
+* **Website Summarizer**
+  Provide a URL to summarize webpage content quickly and download the summary.
 
------
+* **Code Explainer** *(New)*
+  Paste code snippets in popular languages and receive a detailed explanation including:
+
+  * The full original code snippet
+  * A comprehensive overview of the entire snippet
+  * A line-by-line breakdown explaining syntax, logic, and key components
+
+---
 
 ## Screenshots
 
-### 🧠 AI Assistant
+### AI Assistant
+
 ![Overview](images/overview.png)
 
-### 📝 Blog AI Assistant
+### Blog AI Assistant
+
 ![Blog Assistant](images/blog_assistant.png)
 
-### 📊 AI CSV Analyzer
+### AI CSV Analyzer
+
 ![CSV Analyzer](images/data_analyzer.png)
 
-### 💻 SQL Query Generator
+### SQL Query Generator
+
 ![SQL Generator](images/sql_generator.png)
 
-### 📄 Document Summarizer
+### Document Summarizer
+
 ![Document Summarizer](images/document_summarizer.png)
 
-### 🌐 Website Summarizer
+### Website Summarizer
+
 ![Website Summarizer](images/website_summarizer.png)
 
------
+### Code Explainer
+
+*(Add your screenshot here)*
+
+---
 
 ## Project Structure
 
@@ -72,121 +89,117 @@ llm-tools-suite/
 │
 ├── tools/
 │   ├── blog_assistant.py
+│   ├── code_explainer.py           # New tool for code explanations
 │   ├── data_analyzer.py
 │   ├── sql_query_generator.py
 │   ├── document_summarizer.py
 │   ├── document_summarizer_utils.py
 │   └── website_summarizer.py
 │
-├── app.py                      # Main Streamlit app interface
-├── README.md                   # Project documentation
-├── requirements.txt            # Required Python packages
-├── images/                     # Screenshots
-└── .gitignore                  # Specifies untracked files to ignore (e.g., local API key, cached data)
-
+├── app.py                         # Main Streamlit app interface with multi-tab chat & UI improvements
+├── README.md                      # Project documentation
+├── requirements.txt               # Python dependencies
+└── images/                        # Screenshot assets
 ```
 
------
+---
 
 ## Installation
 
-1.  **Clone the Repository**
+1. **Clone the repository**
 
-    ```bash
-    git clone https://github.com/MoustafaMohamed01/llm-tools-suite.git
-    cd llm-tools-suite
-    ```
+   ```bash
+   git clone https://github.com/MoustafaMohamed01/llm-tools-suite.git
+   cd llm-tools-suite
+   ```
 
-2.  **Install Requirements**
+2. **Install dependencies**
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3.  **Set Your API Key (Local Development)**
+3. **Set up your API key (Local development)**
 
-    For local development, create a file named `.streamlit/secrets.toml` in the root folder (or `api_key.py` if you prefer the old method and adjust your code to load from there).
-    Add your Gemini API key:
+   Create `.streamlit/secrets.toml` in the root folder and add:
 
-    ```toml
-    # .streamlit/secrets.toml
-    GEMINI_API_KEY = "your-gemini-api-key"
-    ```
+   ```toml
+   GEMINI_API_KEY = "your-gemini-api-key"
+   ```
 
-    Alternatively, set it as an environment variable in your terminal:
-    `export GEMINI_API_KEY="your-gemini-api-key"`
+   Alternatively, export the key in your shell environment:
 
-    **Important:** This `GEMINI_API_KEY` should **never** be committed directly to your GitHub repository. Ensure `.streamlit/secrets.toml` (or `api_key.py`) is listed in your `.gitignore` file.
+   ```bash
+   export GEMINI_API_KEY="your-gemini-api-key"
+   ```
 
------
+   **Note:** Never commit your API keys to source control. `.streamlit/secrets.toml` and `.env` files are included in `.gitignore`.
+
+---
 
 ## Deployment to Streamlit Community Cloud
 
-This application is designed for easy deployment to Streamlit Community Cloud.
+1. Ensure your `requirements.txt` is accurate and `GEMINI_API_KEY` is accessed securely via environment variables (`os.getenv("GEMINI_API_KEY")`).
 
-1.  **Prepare for Deployment:**
+2. Go to [share.streamlit.io](https://share.streamlit.io/), log in, and create a new app linked to this repository.
 
-      * Ensure your `requirements.txt` file accurately lists all necessary Python libraries.
-      * Verify your code uses `os.getenv("GEMINI_API_KEY")` to access the API key, as direct key inclusion is unsafe and will not work on Streamlit Cloud.
-      * Confirm that `api_key.py` (if you were using it locally) is in your `.gitignore` file.
+3. Set the main file path as `app.py`.
 
-2.  **Deploy on Streamlit Cloud:**
+4. In **Advanced settings / Secrets**, add:
 
-      * Go to [share.streamlit.io](https://share.streamlit.io/) and log in with your GitHub account.
-      * Click "New app" and select your `llm-tools-suite` repository.
-      * Choose your branch (e.g., `main`) and set "Main file path" to `app.py`.
-      * **Crucially, under "Advanced settings" (or "Secrets"), add your `GEMINI_API_KEY` as a secret.** This allows Streamlit Cloud to securely provide your API key to your app without it being exposed in your code:
-        ```
-        GEMINI_API_KEY="YOUR_ACTUAL_GEMINI_API_KEY_HERE"
-        ```
-      * Click "Deploy\!" and Streamlit will handle the rest.
+   ```
+   GEMINI_API_KEY="YOUR_ACTUAL_GEMINI_API_KEY_HERE"
+   ```
 
------
+5. Deploy and Streamlit will handle the hosting.
 
-## Run the App (Local)
+---
+
+## Running Locally
 
 ```bash
 streamlit run app.py
 ```
 
-The app will open in your browser, defaulting to the **AI Assistant** page. You can switch between tools using the sidebar.
+This launches the app, starting on the AI Assistant page. Use the sidebar to navigate between tools.
 
------
+---
 
 ## Built With
 
-  * **Streamlit** – For building the web UI
-  * **LangChain** – Managing LLM chains and document processing
-  * **Google Gemini API** – Large Language Model (LLM) backend
-  * **FAISS** – Vector search for summarization
-  * **pypdf / python-docx** – Document parsing libraries
-  * **Requests & Beautiful Soup 4 (BS4)** – For web scraping functionality in the Website Summarizer
+* **Streamlit** – UI and web app framework
+* **LangChain** – Managing LLM chains and document processing
+* **Google Gemini API** – Large Language Model backend
+* **FAISS** – Vector similarity search for document/website summarization
+* **pypdf / python-docx** – PDF and Word document parsing
+* **Requests & Beautiful Soup 4** – Web scraping for website summarization
 
------
+---
 
 ## To-Do
 
-  * Add support for DOC files (if not already covered by `python-docx`)
-  * Enable chat-based interaction for CSV analysis
-  * Add user authentication for secure access
-  * Enhance summary download options (e.g., specific file types like PDF for summarizers)
+* Add support for DOC file format (if not covered by `python-docx`)
+* Enable chat-based interaction for CSV Analyzer for richer conversations
+* Add user authentication for secure access
+* Enhance summary download options (e.g., export as PDF)
+* Add screenshot for Code Explainer tool
 
------
+---
 
 ## Acknowledgements
 
-Thanks to the open-source community and developers of [Streamlit](https://streamlit.io), [LangChain](https://www.langchain.com/), and [Google AI](https://ai.google/).
+Thanks to the open-source communities and teams behind [Streamlit](https://streamlit.io), [LangChain](https://www.langchain.com/), and [Google AI](https://ai.google/).
 
------
+---
 
 ## About Me
 
 **Moustafa Mohamed**
-Aspiring AI Developer with a focus on **Machine Learning, Deep Learning**, and **LLM Engineering**.
+Aspiring AI Developer specializing in Machine Learning, Deep Learning, and LLM Engineering.
 
-  * **GitHub**: [MoustafaMohamed01](https://github.com/MoustafaMohamed01)
-  * **Linkedin**: [Moustafa Mohamed](https://www.linkedin.com/in/moustafamohamed01/)
-  * **Kaggle**: [moustafamohamed01](https://www.kaggle.com/moustafamohamed01)
-  * **Portfolio**: [moustafamohamed](https://moustafamohamed.netlify.app/)
+* **GitHub:** [MoustafaMohamed01](https://github.com/MoustafaMohamed01)
+* **LinkedIn:** [Moustafa Mohamed](https://www.linkedin.com/in/moustafamohamed01/)
+* **Kaggle:** [moustafamohamed01](https://www.kaggle.com/moustafamohamed01)
+* **Portfolio:** [moustafamohamed.netlify.app](https://moustafamohamed.netlify.app/)
 
------
+---
