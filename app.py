@@ -1,84 +1,78 @@
 import streamlit as st
 import os
 import google.generativeai as genai
-from tools import blog_assistant
-from tools import data_analyzer
-from tools import sql_query_generator
-from tools import document_summarizer
-from tools import website_summarizer 
+from tools import (
+    blog_assistant,
+    data_analyzer,
+    sql_query_generator,
+    document_summarizer,
+    website_summarizer,
+)
+from tools.ui_helpers import tool_header
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 if not gemini_api_key:
     st.error(
         "**ERROR:** Gemini API key not found."
-        " Please set it as an environment variable named `GEMINI_API_KEY` "
-        "(e.g., in Streamlit Cloud secrets, Heroku config vars, or your local shell)."
+        " Please set it as an environment variable named `GEMINI_API_KEY`."
     )
     st.stop()
 
 genai.configure(api_key=gemini_api_key)
-
 model = genai.GenerativeModel('gemini-2.0-flash')
 
-professional_persona_instruction = """
-You are an AI assistant designed to provide professional, and accurate information.
+instruction = """
+You are an AI assistant designed to provide professional, accurate information.
 Your responses should be:
-- **Formal and Respectful:** Maintain a polite and courteous tone at all times.
-- **Objective and Factual:** Focus on verifiable information and avoid personal opinions or emotional language.
-- **Grammatically Correct:** Ensure flawless grammar, spelling, and punctuation.
-- **Solution-Oriented:** When appropriate, offer practical advice or solutions based on the query.
-- **Avoid Ambiguity:** Provide definitive answers where possible. If uncertainty exists, state it clearly.
-- **Maintain Confidentiality:** Do not ask for or provide sensitive personal information.
-- **Neutral and Unbiased:** Present information without prejudice or favoritism.
+- Formal, concise, and helpful
+- Free from bias and ambiguity
+- Always grammatically correct
 """
 
 if 'chat_session' not in st.session_state:
     st.session_state.chat_session = model.start_chat(history=[
-        {"role": "user", "parts": [professional_persona_instruction]},
-        {"role": "model", "parts": ["Understood. I will adhere to these guidelines for all interactions. How may I assist you?"]}
+        {"role": "user", "parts": [instruction]},
+        {"role": "model", "parts": ["Understood. I'm ready to assist you."]},
     ])
 if 'messages' not in st.session_state:
     st.session_state.messages = []
-    st.session_state.messages.append({"role": "assistant", "content": "Hello! I am an AI assistant designed to provide professional, concise, and accurate information. How may I assist you today?"})
-
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": "Hello! I'm your AI assistant. How can I help you today?"
+    })
 
 TOOLS = {
     "AI Assistant": {
         "icon": "🧠",
         "name": "AI Assistant",
         "function": None,
-        "description": "Engage in a professional conversation with an AI assistant."
+        "description": "Chat with a professional AI assistant."
     },
-
     "Blog AI Assistant": {
         "icon": "📝",
         "name": "Blog AI Assistant",
         "function": blog_assistant.blog_assistant_app,
         "description": "Generate engaging blog posts with AI assistance."
     },
-
     "AI CSV Analyzer": {
         "icon": "📊",
         "name": "AI CSV Analyzer",
         "function": data_analyzer.data_analyzer_app,
         "description": "Upload and analyze your CSV data using AI."
     },
-
     "SQL Query Generator": {
         "icon": "💻",
         "name": "SQL Query Generator",
         "function": sql_query_generator.sql_query_generator_app,
         "description": "Generate SQL queries from natural language descriptions."
     },
-
     "Document Summarizer": {
         "icon": "📄",
         "name": "Document Summarizer",
         "function": document_summarizer.document_summarizer_app,
         "description": "Summarize PDF and Word documents instantly."
     },
-
     "Website Summarizer": {
         "icon": "🌐",
         "name": "Website Summarizer",
@@ -92,81 +86,93 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'Get Help': 'https://www.google.com/search?q=llm+tools+suite+help',
-        'Report a bug': "https://www.google.com/search?q=llm+tools+suite+bug+report",
-        'About': "# **LLM Tools Suite**\n_A collection of AI-powered tools for everyday tasks._",
+        'About': "# LLM Tools Suite\nA collection of AI-powered tools for productivity.",
+        'Report a Bug': "https://www.google.com/search?q=llm+tools+suite+bug",
+        'Get Help': "https://www.google.com/search?q=llm+tools+suite+help"
     }
 )
 
+with open("style.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 with st.sidebar:
-    st.title("LLM Tools Suite")
+    st.title("🛠️ LLM Tools Suite")
     st.markdown("---")
 
-    tool_options = [f"{tool_info['icon']} {tool_name}" for tool_name, tool_info in TOOLS.items()]
+    tool_options = [f"{v['icon']} {k}" for k, v in TOOLS.items()]
     selected_tool_display = st.radio("Select a Tool:", tool_options, index=0)
+
+    st.markdown("---")
+    if st.button("Clear Chat"):
+        st.session_state.messages = []
+        st.rerun()
+
+    app_url = "/"
+    st.markdown(f"""
+        <a href="{app_url}" target="_blank" style="
+            display: inline-block;
+            background-color: #f39c12;
+            color: white;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 10px;">
+            Start New Chat
+        </a>
+    """, unsafe_allow_html=True)
 
     st.markdown("---")
     st.info("Choose a tool from the list above to get started!")
 
-selected_tool_name = selected_tool_display.split(' ', 1)[1]
+# --- Tool Selection ---
+selected_tool_name = selected_tool_display.split(" ", 1)[1]
+selected_tool = TOOLS[selected_tool_name]
 
 if selected_tool_name == "AI Assistant":
-    st.title('AI Assistant')
-    st.markdown("""
-        I'm here to provide you with professional and accurate information.
-        Please feel free to ask your questions.
-    """)
+    st.title("🧠 AI Assistant")
+    st.markdown("I'm here to assist you professionally. Ask your question below.")
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
-    user_input = st.chat_input("Ask a professional question...")
+    user_input = st.chat_input("Type your message...")
 
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        with st.spinner("Processing request..."):
+        with st.spinner("Thinking..."):
             try:
-                response_chunks = st.session_state.chat_session.send_message(user_input, stream=True)
-                
+                chunks = st.session_state.chat_session.send_message(user_input, stream=True)
                 full_response = ""
                 with st.chat_message("assistant"):
-                    message_placeholder = st.empty()
-                    for chunk in response_chunks:
+                    msg_placeholder = st.empty()
+                    for chunk in chunks:
                         full_response += chunk.text
-                        message_placeholder.markdown(full_response + "▌") 
-                    message_placeholder.markdown(full_response) 
+                        msg_placeholder.markdown(full_response + "▌")
+                    msg_placeholder.markdown(full_response)
 
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
-            except Exception as e:
-                st.error(f"An error occurred: {e}. Please try again.")
 
-    def get_chat_history_as_text():
-        history_text = ""
-        for message in st.session_state.messages:
-            role = "You" if message["role"] == "user" else "Assistant"
-            history_text += f"{role}: {message['content']}\n\n"
-        return history_text
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
     if st.session_state.messages:
+        def chat_history_text():
+            return "\n\n".join(
+                f"{'You' if m['role'] == 'user' else 'Assistant'}: {m['content']}"
+                for m in st.session_state.messages
+            )
+
         st.download_button(
-            label="Download Conversation",
-            data=get_chat_history_as_text(),
-            file_name="chatbot_conversation.txt",
-            mime="text/plain",
-            help="Click to download the current conversation history."
+            label="Download Chat",
+            data=chat_history_text(),
+            file_name="chat_history.txt",
+            mime="text/plain"
         )
-
 else:
-    selected_tool_info = TOOLS[selected_tool_name]
-    selected_tool_function = selected_tool_info["function"]
-    selected_tool_description = selected_tool_info["description"]
-
-    st.title(f"{selected_tool_info['icon']} {selected_tool_name}")
-    st.markdown(f"**{selected_tool_description}**")
-    st.markdown("---")
-
-    selected_tool_function()
+    tool_header(selected_tool_name, selected_tool["description"], selected_tool["icon"])
+    selected_tool["function"]()
