@@ -7,6 +7,7 @@ from tools import (
     sql_query_generator,
     document_summarizer,
     website_summarizer,
+    code_explainer,
 )
 from tools.ui_helpers import tool_header
 
@@ -79,6 +80,12 @@ TOOLS = {
         "function": website_summarizer.website_summarizer_app,
         "description": "Summarize web pages by providing a URL."
     },
+    "Code Explainer": {
+        "icon": "🔍",
+        "name": "Code Explainer",
+        "function": code_explainer.code_explainer_app,
+        "description": "Understand code with AI-powered step-by-step explanations."
+    }
 }
 
 st.set_page_config(
